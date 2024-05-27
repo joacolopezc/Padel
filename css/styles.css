@@ -19,9 +19,54 @@ body header .container-fluid {
 body header .container-fluid img {
   height: 200px;
 }
-body div.sorteo {
+body h1 {
+  padding: 10px;
+  background-color: rgba(187, 184, 2, 0.727);
+}
+body .tabla {
+  background-color: aquamarine;
+  padding: 10px;
+  display: flex;
+  justify-content: center;
+}
+body .tabla table {
+  font-size: 20px;
+  padding: 20px;
+  letter-spacing: 1px;
+}
+body .tabla table th {
   padding: 10px;
 }
-body div.sorteo input {
-  padding: 10px;
+body .sorteo {
+  font-size: 20px;
+  background-color: rgba(187, 184, 2, 0.727);
+  padding: 20px;
+}
+body .sorteo h2 {
+  font-size: 27px;
+  margin-bottom: 10px;
+  padding: 5px;
+}
+body .sorteo .resultado {
+  font-size: 20px;
+  padding: 5px;
+}
+body .sorteo .resultado button:hover {
+  color: rgba(187, 184, 2, 0.727);
+}
+body .sorteo .resultado button {
+  font-size: 17px;
+  padding: 3px;
+  margin: 20px;
+  background-color: black;
+  color: white;
+  border-radius: 15px;
+}
+body footer {
+  background-color: black;
+  color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100px;
 }/*# sourceMappingURL=styles.css.map */

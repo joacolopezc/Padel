@@ -23,12 +23,67 @@ body{
         }
     }
 
-    div.sorteo{
+    h1{
         padding: 10px;
+        background-color: rgba(187, 184, 2, 0.727);
+    }
 
-        input{
-            padding: 10px;
+    .tabla{
+        background-color: aquamarine;
+        padding: 10px;
+        display: flex;
+        justify-content: center;
+
+        table{
+            font-size: 20px;
+            padding: 20px;
+            letter-spacing: 1px;
+            
+            th{
+                padding: 10px;
+            }
         }
+    }
+
+    .sorteo{
+        font-size: 20px;
+        background-color: rgba(187, 184, 2, 0.727);
+        padding: 20px;
+
+        h2{
+            font-size: 27px;
+            margin-bottom: 10px;
+            padding: 5px;
+        }
+
+        .resultado{
+            font-size: 20px;
+            padding: 5px;
+    
+            button:hover{
+                color: rgba(187, 184, 2, 0.727);
+            }
+    
+            button{
+                font-size: 17px;
+                padding: 3px;
+                margin: 20px;
+                background-color: black;
+                color: white;
+                border-radius: 15px;
+            }
+        }
+    }
+
+    
+
+    footer{
+        background-color: black;
+        color: white;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100px;
     }
 }
 
