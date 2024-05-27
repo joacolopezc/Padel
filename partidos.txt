@@ -1,0 +1,15 @@
+Partido 1: Agustin - Mario vs Jan - Jason
+
+Partido 2: Héctor - Ale vs Pere - Gonzalo
+
+Partido 3: Jan - Gonzalo vs Héctor - Jason
+
+Partido 4: Agustin - Ale vs Pere - Mario
+
+Partido 5: Héctor - Mario vs Agustin - Gonzalo
+
+Partido 6: Jan - Ale vs Pere - Jason
+
+Partido 7: Héctor - Gonzalo vs Jan - Mario
+
+Partido 8: Agustin - Jason vs Pere - Ale

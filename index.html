@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Americana</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <h1>Americana</h1>
+    
+    <section id="tabla-de-posiciones">
+        <h2>Tabla de Posiciones</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Posición</th>
+                    <th>Jugador</th>
+                    <th>Puntos</th>
+                    <th>A Favor</th>
+                    <th>En Contra</th>
+                </tr>
+            </thead>
+            <tbody id="tabla-cuerpo">
+                <!-- Aquí se generará la tabla de posiciones dinámicamente con JavaScript -->
+            </tbody>
+        </table>
+    </section>
+
+    <!-- Sección de selección de nombres para el sorteo -->
+    <div id="seleccion-nombres">
+        <h3>Selecciona 8 nombres para el sorteo:</h3>
+        <label><input type="checkbox" value="Agustin"> Agustin</label><br>
+        <label><input type="checkbox" value="Jan"> Jan</label><br>
+        <label><input type="checkbox" value="Héctor"> Héctor</label><br>
+        <label><input type="checkbox" value="Pere"> Pere</label><br>
+        <label><input type="checkbox" value="Mario"> Mario</label><br>
+        <label><input type="checkbox" value="Jason"> Jason</label><br>
+        <label><input type="checkbox" value="Gonzalo"> Gonzalo</label><br>
+        <label><input type="checkbox" value="Ale"> Ale</label><br>
+        <label><input type="checkbox" value="Diego"> Diego</label><br>
+        <label><input type="checkbox" value="Abel"> Abel</label><br>
+        <label><input type="checkbox" value="Sergi"> Sergi</label><br>
+        <label><input type="checkbox" value="Adriá"> Adriá</label><br>
+        <label><input type="checkbox" value="Roger"> Roger</label><br>
+    </div>
+
+    <!-- Aquí se mostrarán las parejas sorteadas -->
+    <div id="resultado-sorteo">
+        <!-- Resultado del sorteo -->
+    </div>
+
+    <button onclick="realizarSorteoPorPosicion()">Realizar Sorteo Basado en Posición</button>
+
+    <script src="script.js"></script>
+</body>
+</html>
