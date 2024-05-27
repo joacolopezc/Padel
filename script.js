@@ -1,18 +1,16 @@
 // Datos de los jugadores
 let jugadores = [
-    { nombre: "Agustin", puntos: 27, puntosAFavor: 309, puntosEnContra: 253, diferenciaPuntos: 56 },
+    { nombre: "Agus", puntos: 27, puntosAFavor: 309, puntosEnContra: 253, diferenciaPuntos: 56 },
     { nombre: "Jan", puntos: 18, puntosAFavor: 211, puntosEnContra: 157, diferenciaPuntos: 54 },
     { nombre: "Héctor", puntos: 18, puntosAFavor: 200, puntosEnContra: 183, diferenciaPuntos: 17 },
     { nombre: "Pere", puntos: 16, puntosAFavor: 268, puntosEnContra: 271, diferenciaPuntos: -3 },
     { nombre: "Mario", puntos: 16, puntosAFavor: 274, puntosEnContra: 298, diferenciaPuntos: -24 },
     { nombre: "Jason", puntos: 12, puntosAFavor: 105, puntosEnContra: 87, diferenciaPuntos: 18 },
-    { nombre: "Gonzalo", puntos: 12, puntosAFavor: 282, puntosEnContra: 297, diferenciaPuntos: -15 },
+    { nombre: "Gon", puntos: 12, puntosAFavor: 282, puntosEnContra: 297, diferenciaPuntos: -15 },
     { nombre: "Ale", puntos: 9, puntosAFavor: 186, puntosEnContra: 206, diferenciaPuntos: -20 },
     { nombre: "Diego", puntos: 7, puntosAFavor: 250, puntosEnContra: 287, diferenciaPuntos: -37},
     { nombre: "Abel", puntos: 4, puntosAFavor: 87, puntosEnContra: 107, diferenciaPuntos: -20 },
     { nombre: "Sergi", puntos: 3, puntosAFavor: 86, puntosEnContra: 112, diferenciaPuntos: -26 },
-    { nombre: "Adriá", puntos: 0, puntosAFavor: 0, puntosEnContra: 0, diferenciaPuntos: 0 },
-    { nombre: "Roger", puntos: 0, puntosAFavor: 0, puntosEnContra: 0, diferenciaPuntos: 0 },
 ];
 
 // Función para calcular la tabla de posiciones
