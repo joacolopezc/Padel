@@ -2,77 +2,80 @@
 <html lang="es">
 
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="./css/styles.css">
     <title>Americana</title>
-    <link rel="stylesheet" href="./css/styles.css" />
 </head>
 
 <body>
     <header>
-        <nav class="navbar navbar-light bg-light">
-            <div class="container-fluid">
-                <a class="navbar-brand" href="#"><img src="./assets/logo2.webp" alt="padel" /></a>
+        <nav class="navbar">
+            <div data-aos="zoom-in" data-aos-duration="2000">
+                <a href="#">
+                    <img src="./assets/logo2.webp" alt="padel">
+                </a>
             </div>
         </nav>
     </header>
 
-    <h1>Americana</h1>
 
-    <div class="tabla">
-        <section id="tabla-de-posiciones">
-            <h2>Tabla de Posiciones</h2>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Posición</th>
-                        <th>Jugador</th>
-                        <th>Puntos</th>
-                        <th>A Favor</th>
-                        <th>En Contra</th>
-                        <th>Dif</th>
-                    </tr>
-                </thead>
-                <tbody id="tabla-cuerpo">
-                    <!-- Aquí se generará la tabla de posiciones dinámicamente con JavaScript -->
-                </tbody>
-            </table>
-        </section>
-    </div>
-
-
-    <div class="sorteo" id="seleccion-nombres">
-        <div>
-            <h2>Arma las parejas aca abajo!</h2>
-        </div>
-        <h3>Selecciona 8 nombres para el sorteo:</h3>
-        <label><input type="checkbox" value="Agus" /> Agus</label><br />
-        <label><input type="checkbox" value="Jan" /> Jan</label><br />
-        <label><input type="checkbox" value="Héctor" /> Héctor</label><br />
-        <label><input type="checkbox" value="Pere" /> Pere</label><br />
-        <label><input type="checkbox" value="Mario" /> Mario</label><br />
-        <label><input type="checkbox" value="Jason" /> Jason</label><br />
-        <label><input type="checkbox" value="Gon" /> Gon</label><br />
-        <label><input type="checkbox" value="Ale" /> Ale</label><br />
-        <label><input type="checkbox" value="Diego" /> Diego</label><br />
-        <label><input type="checkbox" value="Abel" /> Abel</label><br />
-        <label><input type="checkbox" value="Sergi" /> Sergi</label><br />
-        <div class="resultado">
-            <div id="resultado-sorteo">
-                <!-- Resultado del sorteo -->
+    <div class="sorteo">
+        <h2>Seleccionar Jugadores</h2>
+        <form id="formulario-jugadores">
+            <div>
+                <label for="jugador1">Jugador 1:</label>
+                <select id="jugador1" required></select>
             </div>
+            <div>
+                <label for="jugador2">Jugador 2:</label>
+                <select id="jugador2" required></select>
+            </div>
+            <div>
+                <label for="jugador3">Jugador 3:</label>
+                <select id="jugador3" required></select>
+            </div>
+            <div>
+                <label for="jugador4">Jugador 4:</label>
+                <select id="jugador4" required></select>
+            </div>
+            <div>
+                <label for="jugador5">Jugador 5:</label>
+                <select id="jugador5" required></select>
+            </div>
+            <div>
+                <label for="jugador6">Jugador 6:</label>
+                <select id="jugador6" required></select>
+            </div>
+            <div>
+                <label for="jugador7">Jugador 7:</label>
+                <select id="jugador7" required></select>
+            </div>
+            <div>
+                <label for="jugador8">Jugador 8:</label>
+                <select id="jugador8" required></select>
+            </div>
+            <button type="button" onclick="seleccionarJugadores()">Sortear Parejas</button>
+        </form>
 
-            <button onclick="realizarSorteoPorPosicion()">Realizar Sorteo</button>
-        </div>
+        <h2>Parejas</h2>
+        <ul id="parejas-generadas"></ul>
+
+        <button type="button" onclick="generarPartidos(parejas)">Armar Partidos</button>
+        <h2>Partidos</h2>
+        <ul id="partidos-americana"></ul>
     </div>
-
 
     <footer>
-        <div><p>Copyright</p></div>
-        <div><p>Contacto</p></div>
+        <div>
+            <p>Contacto</p>
+        </div>
     </footer>
 
-    <script src="script.js"></script>
-</body>
 
+    <script src="script.js"></script>
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>AOS.init();</script>
+</body>
 </html>

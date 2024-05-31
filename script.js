@@ -1,88 +1,171 @@
-// Datos de los jugadores
-let jugadores = [
-    { nombre: "Agus", puntos: 27, puntosAFavor: 309, puntosEnContra: 253, diferenciaPuntos: 56 },
-    { nombre: "Jan", puntos: 18, puntosAFavor: 211, puntosEnContra: 157, diferenciaPuntos: 54 },
-    { nombre: "Héctor", puntos: 18, puntosAFavor: 200, puntosEnContra: 183, diferenciaPuntos: 17 },
-    { nombre: "Pere", puntos: 16, puntosAFavor: 268, puntosEnContra: 271, diferenciaPuntos: -3 },
-    { nombre: "Mario", puntos: 16, puntosAFavor: 274, puntosEnContra: 298, diferenciaPuntos: -24 },
-    { nombre: "Jason", puntos: 12, puntosAFavor: 105, puntosEnContra: 87, diferenciaPuntos: 18 },
-    { nombre: "Gon", puntos: 12, puntosAFavor: 282, puntosEnContra: 297, diferenciaPuntos: -15 },
-    { nombre: "Ale", puntos: 9, puntosAFavor: 186, puntosEnContra: 206, diferenciaPuntos: -20 },
-    { nombre: "Diego", puntos: 7, puntosAFavor: 250, puntosEnContra: 287, diferenciaPuntos: -37},
-    { nombre: "Abel", puntos: 4, puntosAFavor: 87, puntosEnContra: 107, diferenciaPuntos: -20 },
-    { nombre: "Sergi", puntos: 3, puntosAFavor: 86, puntosEnContra: 112, diferenciaPuntos: -26 },
+const tablaPosiciones = [{
+    nombre: "Agus",
+    puntos: 27,
+    puntosAFavor: 309,
+    puntosEnContra: 253,
+    diferenciaPuntos: 56
+},
+{
+    nombre: "Jan",
+    puntos: 18,
+    puntosAFavor: 211,
+    puntosEnContra: 157,
+    diferenciaPuntos: 54
+},
+{
+    nombre: "Héctor",
+    puntos: 18,
+    puntosAFavor: 200,
+    puntosEnContra: 183,
+    diferenciaPuntos: 17
+},
+{
+    nombre: "Pere",
+    puntos: 16,
+    puntosAFavor: 268,
+    puntosEnContra: 271,
+    diferenciaPuntos: -3
+},
+{
+    nombre: "Mario",
+    puntos: 16,
+    puntosAFavor: 274,
+    puntosEnContra: 298,
+    diferenciaPuntos: -24
+},
+{
+    nombre: "Jason",
+    puntos: 12,
+    puntosAFavor: 105,
+    puntosEnContra: 87,
+    diferenciaPuntos: 18
+},
+{
+    nombre: "Gon",
+    puntos: 12,
+    puntosAFavor: 282,
+    puntosEnContra: 297,
+    diferenciaPuntos: -15
+},
+{
+    nombre: "Ale",
+    puntos: 9,
+    puntosAFavor: 186,
+    puntosEnContra: 206,
+    diferenciaPuntos: -20
+},
+{
+    nombre: "Diego",
+    puntos: 7,
+    puntosAFavor: 250,
+    puntosEnContra: 287,
+    diferenciaPuntos: -37
+},
+{
+    nombre: "Abel",
+    puntos: 4,
+    puntosAFavor: 87,
+    puntosEnContra: 107,
+    diferenciaPuntos: -20
+},
+{
+    nombre: "Sergi",
+    puntos: 3,
+    puntosAFavor: 86,
+    puntosEnContra: 112,
+    diferenciaPuntos: -26
+}
 ];
 
-// Función para calcular la tabla de posiciones
-function calcularTablaPosiciones() {
-    // Calcular la diferencia de puntos para cada jugador
-    jugadores.forEach(jugador => {
-        jugador.diferenciaPuntos = jugador.puntosAFavor - jugador.puntosEnContra;
-    });
+const jugadoresSeleccionados = [];
 
-    // Ordenar jugadores por puntos y luego por diferencia de puntos (descendente)
-    jugadores.sort((a, b) => {
-        if (a.puntos !== b.puntos) {
-            return b.puntos - a.puntos; // Ordenar por puntos
-        } else {
-            return b.diferenciaPuntos - a.diferenciaPuntos; // Ordenar por diferencia de puntos
-        }
+// Función para llenar los selectores con jugadores
+function llenarSelectores() {
+const selectores = document.querySelectorAll('select');
+tablaPosiciones.forEach((jugador, index) => {
+    const option = document.createElement('option');
+    option.value = jugador.nombre;
+    option.textContent = jugador.nombre;
+    selectores.forEach(selector => {
+        selector.appendChild(option.cloneNode(true));
     });
-
-    // Actualizar la tabla de posiciones en el HTML
-    let tablaCuerpo = document.getElementById("tabla-cuerpo");
-    tablaCuerpo.innerHTML = "";
-    jugadores.forEach((jugador, index) => {
-        let fila = `<tr>
-                        <td>${index + 1}</td>
-                        <td>${jugador.nombre}</td>
-                        <td>${jugador.puntos}</td>
-                        <td>${jugador.puntosAFavor}</td>
-                        <td>${jugador.puntosEnContra}</td>
-                        <td>${jugador.diferenciaPuntos}</td>
-                    </tr>`;
-        tablaCuerpo.innerHTML += fila;
-    });
+});
 }
 
-// Función para realizar el sorteo basado en la posición en la tabla de posiciones
-function realizarSorteoPorPosicion() {
-    // Obtener los nombres seleccionados
-    let nombresSeleccionados = [];
-    let checkboxes = document.querySelectorAll('input[type="checkbox"]:checked');
-    checkboxes.forEach(checkbox => {
-        nombresSeleccionados.push(checkbox.value);
-    });
+// Función para seleccionar jugadores
+function seleccionarJugadores() {
+jugadoresSeleccionados.length = 0; // Limpiar selección anterior
+const selectores = document.querySelectorAll('select');
+const nombresSeleccionados = new Set();
 
-    // Verificar si se seleccionaron exactamente 8 nombres
-    if (nombresSeleccionados.length === 8) {
-        // Filtrar jugadores seleccionados y ordenarlos por puntos
-        let jugadoresSeleccionados = jugadores.filter(jugador => nombresSeleccionados.includes(jugador.nombre));
-        jugadoresSeleccionados.sort((a, b) => b.puntos - a.puntos);
-
-        // Generar los partidos asegurando que cada jugador de los primeros cuatro juegue con cada jugador de los últimos cuatro
-        let partidosGenerados = [];
-        for (let i = 0; i < 4; i++) {
-            for (let j = 4; j < 8; j++) {
-                let partido = `Partido ${i * 4 + j - 3}: ${jugadoresSeleccionados[i].nombre} - ${jugadoresSeleccionados[j].nombre} vs ${jugadoresSeleccionados[j].nombre} - ${jugadoresSeleccionados[i].nombre}`;
-                partidosGenerados.push(partido);
-            }
-        }
-
-        // Mostrar los partidos sorteados en el HTML
-        let resultadoSorteo = document.getElementById("resultado-sorteo");
-        resultadoSorteo.innerHTML = "<h3>Partidos sorteados:</h3>";
-        partidosGenerados.forEach(partido => {
-            resultadoSorteo.innerHTML += `<p>${partido}</p>`;
-        });
-    } else {
-        alert("Por favor, selecciona exactamente 8 nombres.");
+selectores.forEach(selector => {
+    const nombre = selector.value;
+    if (!nombresSeleccionados.has(nombre) && nombre) {
+        nombresSeleccionados.add(nombre);
+        jugadoresSeleccionados.push(nombre);
     }
-}
-
-
-
-document.addEventListener("DOMContentLoaded", function() {
-    calcularTablaPosiciones();
 });
 
+if (jugadoresSeleccionados.length === 8) {
+    generarYMostrarParejas();
+} else {
+    alert('Debe seleccionar 8 jugadores diferentes.');
+}
+}
+
+// Función para generar las parejas
+function generarParejas(jugadores) {
+const parejas = [];
+const primerosCuatro = jugadores.slice(0, 4);
+const ultimosCuatro = jugadores.slice(4, 8);
+
+// Generar las parejas entre los primeros cuatro y los últimos cuatro
+primerosCuatro.forEach(jugador1 => {
+    ultimosCuatro.forEach(jugador2 => {
+        const pareja = [jugador1, jugador2];
+        parejas.push(pareja);
+    });
+});
+
+return parejas;
+}
+
+// Función para generar y mostrar las parejas
+function generarYMostrarParejas() {
+const parejas = generarParejas(jugadoresSeleccionados);
+const parejasGeneradas = document.getElementById('parejas-generadas');
+parejasGeneradas.innerHTML = ''; // Limpiar parejas anteriores
+
+parejas.forEach((pareja, index) => {
+    const li = document.createElement('li');
+    li.textContent = `Pareja ${index + 1}: ${pareja[0]} y ${pareja[1]}`;
+    parejasGeneradas.appendChild(li);
+});
+
+// generamos partidos solo si se han seleccionado los jugadores
+generarPartidos(parejas);
+}
+
+// Función para generar los partidos basados en las parejas sorteadas
+function generarPartidos(parejas) {
+const partidos = [];
+
+// Generar los partidos
+parejas.forEach((pareja, index) => {
+    for (let i = index + 1; i < parejas.length; i++) {
+        partidos.push([pareja, parejas[i]]);
+    }
+});
+
+// Mostrar los partidos generados (puedes modificar esto según tu diseño)
+const partidosDiv = document.getElementById('partidos-generados');
+partidosDiv.innerHTML = '';
+partidos.forEach((partido, index) => {
+    const div = document.createElement('div');
+    div.textContent = `Partido ${index + 1}: ${partido[0][0]} y ${partido[0][1]} vs ${partido[1][0]} y ${partido[1][1]}`;
+    partidosDiv.appendChild(div);
+});
+}
+
+// Evento para llenar los selectores al cargar la página
+window.onload = llenarSelectores;

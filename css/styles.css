@@ -7,24 +7,33 @@
 body {
   font-family: "Montserrat", sans-serif;
   text-align: center;
+  background-color: rgba(199, 217, 4, 0.956);
+}
+body button:hover {
+  color: rgba(199, 217, 4, 0.956);
+}
+body button {
+  font-size: 17px;
+  padding: 3px;
+  margin: 20px;
+  background-color: black;
+  color: white;
+  border-radius: 15px;
 }
 body header {
   background-color: black;
   height: auto;
 }
-body header .container-fluid {
-  height: auto;
+body header .navbar {
   text-align: center;
 }
-body header .container-fluid img {
-  height: 200px;
+body header .navbar img {
+  height: 180px;
 }
 body h1 {
   padding: 10px;
-  background-color: rgba(187, 184, 2, 0.727);
 }
 body .tabla {
-  background-color: aquamarine;
   padding: 10px;
   display: flex;
   justify-content: center;
@@ -39,28 +48,13 @@ body .tabla table th {
 }
 body .sorteo {
   font-size: 20px;
-  background-color: rgba(187, 184, 2, 0.727);
+  background-color: rgba(199, 217, 4, 0.956);
   padding: 20px;
 }
 body .sorteo h2 {
   font-size: 27px;
   margin-bottom: 10px;
   padding: 5px;
-}
-body .sorteo .resultado {
-  font-size: 20px;
-  padding: 5px;
-}
-body .sorteo .resultado button:hover {
-  color: rgba(187, 184, 2, 0.727);
-}
-body .sorteo .resultado button {
-  font-size: 17px;
-  padding: 3px;
-  margin: 20px;
-  background-color: black;
-  color: white;
-  border-radius: 15px;
 }
 body footer {
   background-color: black;
@@ -69,4 +63,5 @@ body footer {
   justify-content: center;
   align-items: center;
   height: 100px;
+  font-size: 20px;
 }/*# sourceMappingURL=styles.css.map */
