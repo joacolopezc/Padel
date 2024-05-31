@@ -5,9 +5,9 @@
 }
 
 body {
+  background-color: rgba(199, 217, 4, 0.956);
   font-family: "Montserrat", sans-serif;
   text-align: center;
-  background-color: rgba(199, 217, 4, 0.956);
 }
 body button:hover {
   color: rgba(199, 217, 4, 0.956);
@@ -22,39 +22,32 @@ body button {
 }
 body header {
   background-color: black;
-  height: auto;
 }
 body header .navbar {
   text-align: center;
 }
 body header .navbar img {
-  height: 180px;
-}
-body h1 {
-  padding: 10px;
+  height: 160px;
 }
 body .tabla {
-  padding: 10px;
-  display: flex;
-  justify-content: center;
-}
-body .tabla table {
-  font-size: 20px;
+  display: inline-block;
   padding: 20px;
-  letter-spacing: 1px;
 }
-body .tabla table th {
+body .tabla th {
   padding: 10px;
+  letter-spacing: 1px;
 }
 body .sorteo {
   font-size: 20px;
-  background-color: rgba(199, 217, 4, 0.956);
   padding: 20px;
 }
 body .sorteo h2 {
   font-size: 27px;
   margin-bottom: 10px;
   padding: 5px;
+}
+body .sorteo ul {
+  list-style-type: none;
 }
 body footer {
   background-color: black;

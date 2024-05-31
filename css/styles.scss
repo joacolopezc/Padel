@@ -9,9 +9,9 @@ $color2: black;
 }
 
 body{
+    background-color: $color1;
     font-family: "Montserrat", sans-serif;
     text-align: center;
-    background-color: $color1;
     
     button:hover{
         color: $color1;
@@ -28,46 +28,37 @@ body{
 
     header{
         background-color: $color2;
-        height: auto;
 
         .navbar{
             text-align: center;
 
             img{
-                height: 180px;
+                height: 160px;
             }
         }
-    }
-
-    h1{
-        padding: 10px;
     }
 
     .tabla{
-        padding: 10px;
-        display: flex;
-        justify-content: center;
-
-        table{
-            font-size: 20px;
-            padding: 20px;
+        display: inline-block;
+        padding: 20px;
+        th{
+            padding: 10px;
             letter-spacing: 1px;
-            
-            th{
-                padding: 10px;
-            }
         }
     }
-
+    
     .sorteo{
         font-size: 20px;
-        background-color: $color1;
         padding: 20px;
 
         h2{
             font-size: 27px;
             margin-bottom: 10px;
             padding: 5px;
+        }
+
+        ul{
+            list-style-type: none;
         }
     }
 

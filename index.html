@@ -21,7 +21,24 @@
     </header>
 
 
+
     <div class="sorteo">
+        <div data-aos="fade-up" data-aos-duration="3000" class="tabla">
+            <h1>Tabla de Posiciones</h1>
+            <table id="tablaPosiciones">
+                <thead>
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Puntos</th>
+                        <th>Puntos a Favor</th>
+                        <th>Puntos en Contra</th>
+                        <th>Diferencia de Puntos</th>
+                    </tr>
+                </thead>
+                <tbody id="tablaPosicionesBody"></tbody>
+            </table>
+        </div>
+
         <h2>Seleccionar Jugadores</h2>
         <form id="formulario-jugadores">
             <div>
@@ -62,7 +79,7 @@
         <h2>Parejas</h2>
         <ul id="parejas-generadas"></ul>
 
-        <button type="button" onclick="generarPartidos(parejas)">Armar Partidos</button>
+        <button type="button" onclick="generarPartidos(window.parejas)">Armar Partidos</button>
         <h2>Partidos</h2>
         <ul id="partidos-americana"></ul>
     </div>
@@ -76,6 +93,9 @@
 
     <script src="script.js"></script>
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
-    <script>AOS.init();</script>
+    <script>
+        AOS.init();
+    </script>
 </body>
+
 </html>
