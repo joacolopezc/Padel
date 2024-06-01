@@ -84,12 +84,12 @@ function llenarTablaPosiciones() {
     tablaPosiciones.forEach(jugador => {
         const row = document.createElement('tr');
         row.innerHTML = `
-            <td>${jugador.nombre}</td>
-            <td>${jugador.puntos}</td>
-            <td>${jugador.puntosAFavor}</td>
-            <td>${jugador.puntosEnContra}</td>
-            <td>${jugador.diferenciaPuntos}</td>
-        `;
+        <td>${jugador.nombre}</td>
+        <td>${jugador.puntos}</td>
+        <td>${jugador.puntosAFavor}</td>
+        <td>${jugador.puntosEnContra}</td>
+        <td>${jugador.diferenciaPuntos}</td>
+    `;
         tablaBody.appendChild(row);
     });
 }
@@ -172,11 +172,22 @@ function generarYMostrarParejas() {
     window.parejas = parejas;
 }
 
-// Función para generar los partidos basados en las parejas sorteadas
 function generarPartidos(parejas) {
     const partidos = [];
-    const jugadoresPorPartido = new Set();
+    const parejasUtilizadas = new Set();
 
+    // Función para verificar si una pareja ya ha sido utilizada en un partido
+    function parejaUtilizada(pareja) {
+        const parejaStr = pareja.join('|'); // Convertir la pareja en una cadena para comparación en el Set
+        return parejasUtilizadas.has(parejaStr);
+    }
+
+    // Función para verificar si un jugador ya está en una pareja
+    function jugadorRepetido(jugador, pareja) {
+        return pareja.includes(jugador);
+    }
+
+    // Generar los partidos
     while (partidos.length < 8) {
         const index1 = Math.floor(Math.random() * parejas.length);
         const index2 = Math.floor(Math.random() * parejas.length);
@@ -184,44 +195,35 @@ function generarPartidos(parejas) {
         const pareja1 = parejas[index1];
         const pareja2 = parejas[index2];
 
-        if (index1 !== index2 && !seRepiteJugador(pareja1, pareja2)) {
+        // Verificar si la pareja ya fue utilizada o si hay jugadores repetidos en la pareja
+        if (index1 !== index2 &&
+            !parejaUtilizada(pareja1) &&
+            !parejaUtilizada(pareja2) &&
+            !jugadorRepetido(pareja1[0], pareja2) &&
+            !jugadorRepetido(pareja1[1], pareja2) &&
+            !jugadorRepetido(pareja2[0], pareja1) &&
+            !jugadorRepetido(pareja2[1], pareja1)) {
+
             const partido = [pareja1, pareja2];
             partidos.push(partido);
 
-            // Agregar jugadores del partido al conjunto de jugadores
-            partido.forEach(pareja => {
-                pareja.forEach(jugador => {
-                    jugadoresPorPartido.add(jugador);
-                });
-            });
+            // Marcar parejas como utilizadas
+            parejasUtilizadas.add(pareja1.join('|'));
+            parejasUtilizadas.add(pareja2.join('|'));
         }
     }
 
+    // Mostrar los partidos en la lista
     const listaPartidos = document.getElementById('partidos-americana');
     listaPartidos.innerHTML = ''; // Limpiar lista anterior
 
-    partidos.forEach((partido, index) => {
+    // Mostrar los partidos agrupados de dos en dos
+    for (let i = 0; i < partidos.length; i += 2) {
         const li = document.createElement('li');
-        li.textContent = `Partido ${index + 1}: ${partido[0][0]} - ${partido[0][1]} vs ${partido[1][0]} - ${partido[1][1]}`;
+        li.textContent = `Partido ${i / 2 + 1}: ${partidos[i][0][0]} - ${partidos[i][0][1]} vs ${partidos[i][1][0]} - ${partidos[i][1][1]}, ${partidos[i + 1][0][0]} - ${partidos[i + 1][0][1]} vs ${partidos[i + 1][1][0]} - ${partidos[i + 1][1][1]}`;
         listaPartidos.appendChild(li);
-    });
+    }
 }
-
-// Función para verificar si algún jugador se repite en dos parejas
-function seRepiteJugador(pareja1, pareja2) {
-    return pareja1.some(jugador => pareja2.includes(jugador));
-}
-
-// Mostrar los partidos generados (puedes modificar esto según tu diseño)
-const partidosDiv = document.getElementById('partidos-americana');
-partidosDiv.innerHTML = '';
-// No necesitamos esta parte, ya que generaremos los partidos más tarde con la función generarPartidos
-// partidos.forEach((partido, index) => {
-//     const div = document.createElement('div');
-//     div.textContent = `Partido ${index + 1}: ${partido[0][0]} y ${partido[0][1]} vs ${partido[1][0]} y ${partido[1][1]}`;
-//     partidosDiv.appendChild(div);
-// });
-
 
 // Función para llenar los selectores y la tabla de posiciones al cargar la página
 window.onload = function () {
