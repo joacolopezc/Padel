@@ -74,12 +74,13 @@
                 <select id="jugador8" required></select>
             </div>
             <button type="button" onclick="seleccionarJugadores()">Sortear Parejas</button>
+            <button type="button" onclick="resetearSorteo()" class="btn-secondary">Resetear Sorteo</button>
         </form>
 
         <h2>Parejas</h2>
         <ul id="parejas-generadas"></ul>
 
-        <button type="button" onclick="generarPartidos(window.parejas)">Armar Partidos</button>
+        <button type="button" onclick="generarPartidos()">Armar Partidos</button>
         <h2>Partidos</h2>
         <ul id="partidos-americana"></ul>
     </div>
