@@ -39,6 +39,32 @@
             </table>
         </div>
 
+        <div data-aos="fade-up" data-aos-duration="3000" class="gestion-jugadores">
+            <h2>⚙️ Gestión de Jugadores</h2>
+
+            <!-- Agregar nuevo jugador -->
+            <div class="panel-gestion">
+                <h3>➕ Agregar Jugador</h3>
+                <form id="form-agregar-jugador">
+                    <input type="text" id="input-nuevo-jugador" placeholder="Nombre del jugador" required minlength="2" maxlength="20">
+                    <button type="submit">Agregar</button>
+                </form>
+            </div>
+
+            <!-- Lista de jugadores con opciones -->
+            <div class="panel-gestion">
+                <h3>📝 Lista de Jugadores</h3>
+                <div id="lista-jugadores-gestion"></div>
+            </div>
+
+            <!-- Resetear estadísticas -->
+            <div class="panel-gestion">
+                <h3>🔄 Resetear Estadísticas</h3>
+                <p class="descripcion-panel">Resetea los puntos y estadísticas de todos los jugadores a cero.</p>
+                <button type="button" onclick="resetearTodasEstadisticas()" class="btn-danger">Resetear Todas las Estadísticas</button>
+            </div>
+        </div>
+
         <h2>Seleccionar 8 Jugadores para la Americana</h2>
         <p class="descripcion-sorteo">Selecciona 8 jugadores para generar el torneo completo con el sistema Round-Robin. Se crearán 7 rondas con 2 partidos simultáneos en cada una.</p>
         <form id="formulario-jugadores">

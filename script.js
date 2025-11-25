@@ -835,6 +835,169 @@ class InterfazUsuario {
             mensajeDiv.remove();
         }, 3000);
     }
+
+    // ====================================================================
+    // GESTIÓN DE JUGADORES
+    // ====================================================================
+
+    // Renderiza la lista de jugadores con opciones de gestión
+    renderizarListaGestionJugadores() {
+        const container = document.getElementById('lista-jugadores-gestion');
+        container.innerHTML = '';
+
+        const jugadores = this.gestorJugadores.jugadores;
+
+        if (jugadores.length === 0) {
+            container.innerHTML = '<p class="mensaje-vacio">No hay jugadores registrados</p>';
+            return;
+        }
+
+        jugadores.forEach(jugador => {
+            const jugadorDiv = document.createElement('div');
+            jugadorDiv.classList.add('jugador-item');
+
+            jugadorDiv.innerHTML = `
+                <div class="jugador-info">
+                    <span class="jugador-nombre">${jugador.nombre}</span>
+                    <span class="jugador-stats">
+                        ${jugador.puntos} pts |
+                        +${jugador.puntosAFavor} /
+                        -${jugador.puntosEnContra}
+                    </span>
+                </div>
+                <div class="jugador-acciones">
+                    <button onclick="resetearEstadisticasJugador('${jugador.nombre}')" class="btn-small btn-reset" title="Resetear estadísticas">
+                        🔄
+                    </button>
+                    <button onclick="eliminarJugador('${jugador.nombre}')" class="btn-small btn-delete" title="Eliminar jugador">
+                        🗑️
+                    </button>
+                </div>
+            `;
+
+            container.appendChild(jugadorDiv);
+        });
+    }
+
+    // Agrega un nuevo jugador
+    agregarNuevoJugador(nombre) {
+        try {
+            // Limpiar y validar nombre
+            nombre = nombre.trim();
+
+            if (!nombre) {
+                throw new Error('El nombre no puede estar vacío');
+            }
+
+            if (nombre.length < 2) {
+                throw new Error('El nombre debe tener al menos 2 caracteres');
+            }
+
+            if (nombre.length > 20) {
+                throw new Error('El nombre no puede tener más de 20 caracteres');
+            }
+
+            // Agregar jugador
+            this.gestorJugadores.agregarJugador(nombre);
+
+            // Actualizar interfaces
+            this.renderizarTablaPosiciones();
+            this.llenarSelectores();
+            this.renderizarListaGestionJugadores();
+
+            // Mensaje de éxito
+            this.mostrarMensaje(`✅ Jugador "${nombre}" agregado correctamente`, 'success');
+
+            // Limpiar formulario
+            document.getElementById('input-nuevo-jugador').value = '';
+
+        } catch (error) {
+            this.mostrarMensaje('❌ ' + error.message, 'error');
+        }
+    }
+
+    // Elimina un jugador
+    eliminarJugadorPorNombre(nombre) {
+        // Confirmar eliminación
+        if (!confirm(`¿Estás seguro de que deseas eliminar a "${nombre}"?\n\nEsta acción no se puede deshacer.`)) {
+            return;
+        }
+
+        try {
+            const eliminado = this.gestorJugadores.eliminarJugador(nombre);
+
+            if (eliminado) {
+                // Actualizar interfaces
+                this.renderizarTablaPosiciones();
+                this.llenarSelectores();
+                this.renderizarListaGestionJugadores();
+
+                // Mensaje de éxito
+                this.mostrarMensaje(`✅ Jugador "${nombre}" eliminado correctamente`, 'success');
+            } else {
+                throw new Error(`No se pudo eliminar el jugador "${nombre}"`);
+            }
+
+        } catch (error) {
+            this.mostrarMensaje('❌ ' + error.message, 'error');
+        }
+    }
+
+    // Resetea las estadísticas de un jugador específico
+    resetearEstadisticasUnJugador(nombre) {
+        // Confirmar reset
+        if (!confirm(`¿Resetear estadísticas de "${nombre}"?\n\nSus puntos volverán a 0.`)) {
+            return;
+        }
+
+        try {
+            const jugador = this.gestorJugadores.obtenerJugadorPorNombre(nombre);
+
+            if (!jugador) {
+                throw new Error(`Jugador "${nombre}" no encontrado`);
+            }
+
+            // Resetear estadísticas
+            jugador.puntos = 0;
+            jugador.puntosAFavor = 0;
+            jugador.puntosEnContra = 0;
+
+            // Guardar cambios
+            this.gestorJugadores.guardar();
+
+            // Actualizar interfaces
+            this.renderizarTablaPosiciones();
+            this.renderizarListaGestionJugadores();
+
+            // Mensaje de éxito
+            this.mostrarMensaje(`✅ Estadísticas de "${nombre}" reseteadas`, 'success');
+
+        } catch (error) {
+            this.mostrarMensaje('❌ ' + error.message, 'error');
+        }
+    }
+
+    // Resetea las estadísticas de todos los jugadores
+    resetearTodasLasEstadisticas() {
+        // Confirmar reset global
+        if (!confirm('⚠️ ¿Resetear estadísticas de TODOS los jugadores?\n\nTodos los puntos volverán a 0.\n\nEsta acción no se puede deshacer.')) {
+            return;
+        }
+
+        try {
+            this.gestorJugadores.resetearEstadisticas();
+
+            // Actualizar interfaces
+            this.renderizarTablaPosiciones();
+            this.renderizarListaGestionJugadores();
+
+            // Mensaje de éxito
+            this.mostrarMensaje('✅ Todas las estadísticas han sido reseteadas', 'success');
+
+        } catch (error) {
+            this.mostrarMensaje('❌ ' + error.message, 'error');
+        }
+    }
 }
 
 
@@ -858,6 +1021,14 @@ window.onload = function() {
     // Renderiza la interfaz inicial
     interfazUsuario.renderizarTablaPosiciones();
     interfazUsuario.llenarSelectores();
+    interfazUsuario.renderizarListaGestionJugadores();
+
+    // Event listener para el formulario de agregar jugador
+    document.getElementById('form-agregar-jugador').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const nombre = document.getElementById('input-nuevo-jugador').value;
+        interfazUsuario.agregarNuevoJugador(nombre);
+    });
 
     // Intentar cargar torneo guardado
     const torneoExiste = gestorPartidos.cargar();
@@ -958,4 +1129,23 @@ function resetearSorteo() {
     });
 
     interfazUsuario.mostrarMensaje('🔄 Sorteo reseteado', 'info');
+}
+
+// ====================================================================
+// FUNCIONES GLOBALES PARA GESTIÓN DE JUGADORES
+// ====================================================================
+
+// Elimina un jugador
+function eliminarJugador(nombre) {
+    interfazUsuario.eliminarJugadorPorNombre(nombre);
+}
+
+// Resetea las estadísticas de un jugador
+function resetearEstadisticasJugador(nombre) {
+    interfazUsuario.resetearEstadisticasUnJugador(nombre);
+}
+
+// Resetea las estadísticas de todos los jugadores
+function resetearTodasEstadisticas() {
+    interfazUsuario.resetearTodasLasEstadisticas();
 }

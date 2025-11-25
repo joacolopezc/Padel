@@ -759,3 +759,224 @@ body {
         }
     }
 }
+
+// ============================================
+// ESTILOS PARA GESTIÓN DE JUGADORES
+// ============================================
+
+.gestion-jugadores {
+    background-color: rgba(255, 255, 255, 0.9);
+    padding: 30px;
+    border-radius: 15px;
+    margin: 30px auto;
+    max-width: 900px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+
+    h2 {
+        font-size: 28px;
+        margin-bottom: 25px;
+        color: $color2;
+        font-weight: 800;
+    }
+
+    // Paneles dentro de gestión
+    .panel-gestion {
+        background-color: rgba(255, 255, 255, 0.8);
+        padding: 20px;
+        border-radius: 12px;
+        margin: 20px 0;
+        border: 2px solid rgba(0, 0, 0, 0.1);
+
+        h3 {
+            font-size: 20px;
+            margin-bottom: 15px;
+            color: $color2;
+            font-weight: 700;
+        }
+
+        .descripcion-panel {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 15px;
+            line-height: 1.5;
+        }
+    }
+}
+
+// Formulario agregar jugador
+#form-agregar-jugador {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+
+    #input-nuevo-jugador {
+        flex: 1;
+        min-width: 200px;
+        padding: 12px 15px;
+        border: 2px solid #ddd;
+        border-radius: 8px;
+        font-size: 16px;
+        font-family: "Montserrat", sans-serif;
+        transition: border-color 0.3s ease;
+
+        &:focus {
+            outline: none;
+            border-color: $color1;
+        }
+    }
+}
+
+// Lista de jugadores
+#lista-jugadores-gestion {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+
+    .jugador-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 15px;
+        background: linear-gradient(135deg, rgba(255, 255, 255, 1) 0%, rgba(245, 245, 245, 1) 100%);
+        border-radius: 10px;
+        border: 2px solid rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+
+        &:hover {
+            transform: translateX(5px);
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
+            border-color: $color1;
+        }
+
+        .jugador-info {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            flex: 1;
+
+            .jugador-nombre {
+                font-size: 18px;
+                font-weight: 700;
+                color: $color2;
+            }
+
+            .jugador-stats {
+                font-size: 14px;
+                color: #666;
+                font-weight: 500;
+            }
+        }
+
+        .jugador-acciones {
+            display: flex;
+            gap: 8px;
+        }
+    }
+}
+
+// Botones pequeños
+.btn-small {
+    padding: 8px 12px;
+    font-size: 16px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background-color: #f5f5f5;
+
+    &:hover {
+        transform: scale(1.1);
+        box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    &:active {
+        transform: scale(1);
+    }
+
+    &.btn-reset {
+        background-color: $color-info;
+
+        &:hover {
+            background-color: #1976D2;
+        }
+    }
+
+    &.btn-delete {
+        background-color: $color-error;
+
+        &:hover {
+            background-color: #d32f2f;
+        }
+    }
+}
+
+// Botón peligroso
+.btn-danger {
+    background-color: $color-error;
+    color: white;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-family: "Montserrat", sans-serif;
+
+    &:hover {
+        background-color: #d32f2f;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(244, 67, 54, 0.4);
+    }
+
+    &:active {
+        transform: translateY(0);
+    }
+}
+
+// Mensaje vacío
+.mensaje-vacio {
+    text-align: center;
+    color: #999;
+    font-style: italic;
+    padding: 20px;
+}
+
+// Responsive para gestión
+@media (max-width: 768px) {
+    .gestion-jugadores {
+        padding: 20px 15px;
+
+        .panel-gestion {
+            padding: 15px;
+        }
+    }
+
+    #form-agregar-jugador {
+        flex-direction: column;
+
+        #input-nuevo-jugador {
+            width: 100%;
+            min-width: unset;
+        }
+    }
+
+    #lista-jugadores-gestion {
+        .jugador-item {
+            flex-direction: column;
+            gap: 15px;
+            align-items: stretch;
+
+            .jugador-acciones {
+                justify-content: space-around;
+                width: 100%;
+            }
+        }
+    }
+
+    .btn-small {
+        flex: 1;
+        padding: 12px;
+    }
+}
