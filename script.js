@@ -411,11 +411,146 @@ class GestorPartidos {
         };
     }
 
+    // ====================================================================
+    // REGISTRO DE RESULTADOS
+    // ====================================================================
+
+    // Registra el resultado de un partido específico
+    registrarResultado(numeroRonda, numeroPartido, puntosPareja1, puntosPareja2) {
+        // Validaciones
+        if (numeroRonda < 1 || numeroRonda > this.rondas.length) {
+            throw new Error(`Ronda ${numeroRonda} no existe`);
+        }
+
+        const ronda = this.rondas[numeroRonda - 1];
+        if (numeroPartido < 1 || numeroPartido > ronda.partidos.length) {
+            throw new Error(`Partido ${numeroPartido} no existe en la ronda ${numeroRonda}`);
+        }
+
+        // Validar puntos
+        if (puntosPareja1 < 0 || puntosPareja2 < 0) {
+            throw new Error('Los puntos no pueden ser negativos');
+        }
+
+        if (puntosPareja1 === puntosPareja2) {
+            throw new Error('No puede haber empates en pádel');
+        }
+
+        const partido = ronda.partidos[numeroPartido - 1];
+
+        // Registrar el resultado
+        partido.resultado = {
+            puntosPareja1: puntosPareja1,
+            puntosPareja2: puntosPareja2,
+            ganadorPareja1: puntosPareja1 > puntosPareja2
+        };
+        partido.jugado = true;
+
+        // Actualizar estadísticas de los jugadores
+        this._actualizarEstadisticasPartido(partido);
+
+        // Guardar en localStorage
+        this.guardar();
+
+        return partido;
+    }
+
+    // Actualiza las estadísticas de los jugadores después de un partido
+    _actualizarEstadisticasPartido(partido) {
+        if (!partido.resultado) return;
+
+        const { puntosPareja1, puntosPareja2, ganadorPareja1 } = partido.resultado;
+
+        // Actualizar jugadores de la pareja 1
+        partido.pareja1.forEach(nombreJugador => {
+            const jugador = gestorJugadores.obtenerJugadorPorNombre(nombreJugador);
+            if (jugador) {
+                jugador.actualizarEstadisticas(ganadorPareja1, puntosPareja1, puntosPareja2);
+            }
+        });
+
+        // Actualizar jugadores de la pareja 2
+        partido.pareja2.forEach(nombreJugador => {
+            const jugador = gestorJugadores.obtenerJugadorPorNombre(nombreJugador);
+            if (jugador) {
+                jugador.actualizarEstadisticas(!ganadorPareja1, puntosPareja2, puntosPareja1);
+            }
+        });
+
+        // Guardar jugadores actualizados
+        gestorJugadores.guardar();
+    }
+
+    // Obtiene un partido específico
+    obtenerPartido(numeroRonda, numeroPartido) {
+        if (numeroRonda < 1 || numeroRonda > this.rondas.length) {
+            return null;
+        }
+
+        const ronda = this.rondas[numeroRonda - 1];
+        if (numeroPartido < 1 || numeroPartido > ronda.partidos.length) {
+            return null;
+        }
+
+        return ronda.partidos[numeroPartido - 1];
+    }
+
+    // Obtiene el estado general del torneo
+    obtenerEstadoTorneo() {
+        let partidosJugados = 0;
+        let partidosPendientes = 0;
+
+        this.rondas.forEach(ronda => {
+            ronda.partidos.forEach(partido => {
+                if (partido.jugado) {
+                    partidosJugados++;
+                } else {
+                    partidosPendientes++;
+                }
+            });
+        });
+
+        const totalPartidos = partidosJugados + partidosPendientes;
+        const porcentajeCompletado = totalPartidos > 0
+            ? Math.round((partidosJugados / totalPartidos) * 100)
+            : 0;
+
+        return {
+            totalPartidos,
+            partidosJugados,
+            partidosPendientes,
+            porcentajeCompletado,
+            torneoCompleto: partidosPendientes === 0
+        };
+    }
+
+    // Guarda el torneo en localStorage
+    guardar() {
+        Almacenamiento.guardar('torneo', {
+            jugadoresSeleccionados: this.jugadoresSeleccionados,
+            rondas: this.rondas,
+            todasLasParejas: this.todasLasParejas
+        });
+    }
+
+    // Carga el torneo desde localStorage
+    cargar() {
+        const datos = Almacenamiento.obtener('torneo');
+        if (datos) {
+            this.jugadoresSeleccionados = datos.jugadoresSeleccionados || [];
+            this.rondas = datos.rondas || [];
+            this.todasLasParejas = datos.todasLasParejas || [];
+            return true;
+        }
+        return false;
+    }
+
     // Limpia toda la información de partidos
     limpiar() {
         this.jugadoresSeleccionados = [];
         this.rondas = [];
         this.todasLasParejas = [];
+        Almacenamiento.eliminar('torneo');
     }
 }
 
@@ -520,12 +655,24 @@ class InterfazUsuario {
         const listaPartidos = document.getElementById('partidos-americana');
         listaPartidos.innerHTML = '';
 
-        // Mensaje informativo del torneo
+        // Obtener estado del torneo
+        const estadoTorneo = this.gestorPartidos.obtenerEstadoTorneo();
+
+        // Mensaje informativo del torneo con progreso
         const infoTorneo = document.createElement('div');
         infoTorneo.classList.add('info-torneo');
         infoTorneo.innerHTML = `
             <p><strong>🎾 Torneo Americana - ${rondas.length} Rondas</strong></p>
             <p>Cada jugador jugará ${rondas.length} partidos. En cada ronda, todos juegan simultáneamente.</p>
+            <div class="progreso-torneo">
+                <div class="progreso-bar-container">
+                    <div class="progreso-bar" style="width: ${estadoTorneo.porcentajeCompletado}%"></div>
+                </div>
+                <p class="progreso-texto">
+                    ${estadoTorneo.partidosJugados} de ${estadoTorneo.totalPartidos} partidos jugados
+                    (${estadoTorneo.porcentajeCompletado}%)
+                </p>
+            </div>
         `;
         listaPartidos.appendChild(infoTorneo);
 
@@ -551,26 +698,116 @@ class InterfazUsuario {
                 const partidoDiv = document.createElement('div');
                 partidoDiv.classList.add('partido-item');
 
+                // Agregar clase si está jugado
+                if (partido.jugado) {
+                    partidoDiv.classList.add('partido-jugado');
+                }
+
                 const pareja1Texto = partido.pareja1.join(' - ');
                 const pareja2Texto = partido.pareja2.join(' - ');
 
-                partidoDiv.innerHTML = `
+                // HTML base del partido
+                let partidoHTML = `
                     <div class="partido-header">
                         <span class="partido-numero">Pista ${indexPartido + 1}</span>
+                        ${partido.jugado ? '<span class="badge-jugado">✓ Jugado</span>' : '<span class="badge-pendiente">Pendiente</span>'}
                     </div>
                     <div class="partido-detalle">
-                        <span class="pareja">${pareja1Texto}</span>
+                        <span class="pareja ${partido.jugado && partido.resultado && partido.resultado.ganadorPareja1 ? 'ganador' : ''}">${pareja1Texto}</span>
                         <span class="vs">VS</span>
-                        <span class="pareja">${pareja2Texto}</span>
+                        <span class="pareja ${partido.jugado && partido.resultado && !partido.resultado.ganadorPareja1 ? 'ganador' : ''}">${pareja2Texto}</span>
                     </div>
                 `;
 
+                // Si el partido ya fue jugado, mostrar resultado
+                if (partido.jugado && partido.resultado) {
+                    partidoHTML += `
+                        <div class="partido-resultado">
+                            <div class="resultado-marcador">
+                                <span class="marcador ${partido.resultado.ganadorPareja1 ? 'ganador-marcador' : ''}">
+                                    ${partido.resultado.puntosPareja1}
+                                </span>
+                                <span class="separador">-</span>
+                                <span class="marcador ${!partido.resultado.ganadorPareja1 ? 'ganador-marcador' : ''}">
+                                    ${partido.resultado.puntosPareja2}
+                                </span>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    // Si no está jugado, mostrar formulario para registrar resultado
+                    partidoHTML += `
+                        <div class="partido-formulario">
+                            <form class="form-resultado" data-ronda="${ronda.numero}" data-partido="${indexPartido + 1}">
+                                <div class="input-grupo">
+                                    <label>Puntos ${pareja1Texto.split(' - ')[0].split(' ')[0]}...</label>
+                                    <input type="number" class="input-puntos" name="puntos1" min="0" max="99" required>
+                                </div>
+                                <span class="vs-small">-</span>
+                                <div class="input-grupo">
+                                    <label>Puntos ${pareja2Texto.split(' - ')[0].split(' ')[0]}...</label>
+                                    <input type="number" class="input-puntos" name="puntos2" min="0" max="99" required>
+                                </div>
+                                <button type="submit" class="btn-registrar">Registrar</button>
+                            </form>
+                        </div>
+                    `;
+                }
+
+                partidoDiv.innerHTML = partidoHTML;
                 partidosDiv.appendChild(partidoDiv);
             });
 
             rondaDiv.appendChild(partidosDiv);
             listaPartidos.appendChild(rondaDiv);
         });
+
+        // Agregar event listeners a los formularios
+        this._agregarEventListenersFormularios();
+    }
+
+    // Agrega event listeners a los formularios de resultados
+    _agregarEventListenersFormularios() {
+        const formularios = document.querySelectorAll('.form-resultado');
+
+        formularios.forEach(form => {
+            form.addEventListener('submit', (e) => {
+                e.preventDefault();
+
+                const ronda = parseInt(form.dataset.ronda);
+                const partido = parseInt(form.dataset.partido);
+                const puntos1 = parseInt(form.querySelector('[name="puntos1"]').value);
+                const puntos2 = parseInt(form.querySelector('[name="puntos2"]').value);
+
+                this.registrarResultadoPartido(ronda, partido, puntos1, puntos2);
+            });
+        });
+    }
+
+    // Registra el resultado de un partido y actualiza la interfaz
+    registrarResultadoPartido(ronda, partido, puntos1, puntos2) {
+        try {
+            // Registrar resultado
+            this.gestorPartidos.registrarResultado(ronda, partido, puntos1, puntos2);
+
+            // Actualizar tabla de posiciones
+            this.renderizarTablaPosiciones();
+
+            // Recargar partidos para mostrar el resultado
+            this.mostrarPartidosPorRondas(this.gestorPartidos.rondas);
+
+            // Mensaje de éxito
+            this.mostrarMensaje(`✅ Resultado registrado: ${puntos1} - ${puntos2}`, 'success');
+
+            // Verificar si el torneo está completo
+            const estado = this.gestorPartidos.obtenerEstadoTorneo();
+            if (estado.torneoCompleto) {
+                this.mostrarMensaje('🏆 ¡Torneo completado! Todos los partidos han sido jugados.', 'success');
+            }
+
+        } catch (error) {
+            this.mostrarMensaje('❌ ' + error.message, 'error');
+        }
     }
 
     // Muestra estadísticas de un jugador específico
@@ -622,7 +859,24 @@ window.onload = function() {
     interfazUsuario.renderizarTablaPosiciones();
     interfazUsuario.llenarSelectores();
 
-    console.log('✅ Aplicación inicializada correctamente');
+    // Intentar cargar torneo guardado
+    const torneoExiste = gestorPartidos.cargar();
+    if (torneoExiste && gestorPartidos.rondas.length > 0) {
+        // Mostrar torneo cargado
+        const parejasUnicas = gestorPartidos.obtenerParejasUnicas();
+        interfazUsuario.mostrarParejasUnicas(parejasUnicas);
+        interfazUsuario.mostrarPartidosPorRondas(gestorPartidos.rondas);
+
+        const estado = gestorPartidos.obtenerEstadoTorneo();
+        interfazUsuario.mostrarMensaje(
+            `📂 Torneo cargado: ${estado.partidosJugados}/${estado.totalPartidos} partidos jugados`,
+            'info'
+        );
+
+        console.log('✅ Aplicación inicializada correctamente - Torneo cargado');
+    } else {
+        console.log('✅ Aplicación inicializada correctamente');
+    }
 };
 
 // Función llamada cuando se hace clic en "Sortear Parejas"

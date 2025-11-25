@@ -542,3 +542,220 @@ body {
         margin: 15px 10px;
     }
 }
+
+// ============================================
+// ESTILOS PARA REGISTRO DE RESULTADOS
+// ============================================
+
+// Barra de progreso del torneo
+.progreso-torneo {
+    margin-top: 20px;
+
+    .progreso-bar-container {
+        width: 100%;
+        height: 25px;
+        background-color: rgba(0, 0, 0, 0.1);
+        border-radius: 15px;
+        overflow: hidden;
+        margin-bottom: 10px;
+
+        .progreso-bar {
+            height: 100%;
+            background: linear-gradient(90deg, $color1 0%, #90a803 100%);
+            transition: width 0.5s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: $color2;
+        }
+    }
+
+    .progreso-texto {
+        text-align: center;
+        font-weight: 600;
+        color: #333;
+        margin: 5px 0 0 0;
+    }
+}
+
+// Badges de estado
+.badge-jugado,
+.badge-pendiente {
+    padding: 5px 12px;
+    border-radius: 15px;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.badge-jugado {
+    background-color: $color-success;
+    color: white;
+}
+
+.badge-pendiente {
+    background-color: #ff9800;
+    color: white;
+}
+
+// Partido jugado
+.partido-jugado {
+    background: linear-gradient(135deg, #e8f5e9 0%, #f1f8f2 100%) !important;
+    border-color: $color-success !important;
+}
+
+// Parejas ganadoras
+.pareja.ganador {
+    background-color: $color1 !important;
+    color: $color2 !important;
+    font-weight: 800 !important;
+    position: relative;
+
+    &::before {
+        content: "🏆 ";
+    }
+}
+
+// Resultado del partido
+.partido-resultado {
+    padding: 15px;
+    background-color: rgba(255, 255, 255, 0.7);
+    border-top: 2px solid rgba(0, 0, 0, 0.1);
+
+    .resultado-marcador {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 15px;
+        font-size: 32px;
+        font-weight: 800;
+
+        .marcador {
+            min-width: 50px;
+            text-align: center;
+            color: #666;
+
+            &.ganador-marcador {
+                color: $color-success;
+                font-size: 36px;
+            }
+        }
+
+        .separador {
+            color: #999;
+            font-weight: 400;
+        }
+    }
+}
+
+// Formulario de resultados
+.partido-formulario {
+    padding: 15px;
+    background-color: rgba(255, 255, 255, 0.7);
+    border-top: 2px solid rgba(0, 0, 0, 0.1);
+
+    .form-resultado {
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+        gap: 10px;
+        flex-wrap: wrap;
+
+        .input-grupo {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            flex: 1;
+            min-width: 100px;
+
+            label {
+                font-size: 12px;
+                font-weight: 600;
+                color: #555;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+
+            .input-puntos {
+                padding: 10px;
+                border: 2px solid #ddd;
+                border-radius: 8px;
+                font-size: 18px;
+                font-weight: 700;
+                text-align: center;
+                font-family: "Montserrat", sans-serif;
+                transition: border-color 0.3s ease;
+
+                &:focus {
+                    outline: none;
+                    border-color: $color1;
+                }
+            }
+        }
+
+        .vs-small {
+            font-size: 20px;
+            font-weight: 800;
+            color: #999;
+            align-self: center;
+            margin-bottom: 5px;
+        }
+
+        .btn-registrar {
+            padding: 10px 20px;
+            background-color: $color-success;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: "Montserrat", sans-serif;
+            white-space: nowrap;
+
+            &:hover {
+                background-color: #45a049;
+                transform: translateY(-2px);
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            }
+
+            &:active {
+                transform: translateY(0);
+            }
+        }
+    }
+}
+
+// Responsive para formularios
+@media (max-width: 768px) {
+    .form-resultado {
+        flex-direction: column;
+        align-items: stretch;
+
+        .input-grupo {
+            min-width: 100%;
+        }
+
+        .vs-small {
+            margin: 5px 0;
+            align-self: center;
+        }
+
+        .btn-registrar {
+            width: 100%;
+            margin-top: 10px;
+        }
+    }
+
+    .resultado-marcador {
+        font-size: 28px;
+
+        .marcador.ganador-marcador {
+            font-size: 32px;
+        }
+    }
+}
