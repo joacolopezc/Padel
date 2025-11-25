@@ -39,7 +39,8 @@
             </table>
         </div>
 
-        <h2>Seleccionar Jugadores</h2>
+        <h2>Seleccionar 8 Jugadores para la Americana</h2>
+        <p class="descripcion-sorteo">Selecciona 8 jugadores para generar el torneo completo con el sistema Round-Robin. Se crearán 7 rondas con 2 partidos simultáneos en cada una.</p>
         <form id="formulario-jugadores">
             <div>
                 <label for="jugador1">Jugador 1:</label>
@@ -73,15 +74,14 @@
                 <label for="jugador8">Jugador 8:</label>
                 <select id="jugador8" required></select>
             </div>
-            <button type="button" onclick="seleccionarJugadores()">Sortear Parejas</button>
-            <button type="button" onclick="resetearSorteo()" class="btn-secondary">Resetear Sorteo</button>
+            <button type="button" onclick="seleccionarJugadores()">🎾 Generar Torneo Completo</button>
+            <button type="button" onclick="resetearSorteo()" class="btn-secondary">🔄 Resetear</button>
         </form>
 
-        <h2>Parejas</h2>
+        <h2>📋 Parejas del Torneo</h2>
         <ul id="parejas-generadas"></ul>
 
-        <button type="button" onclick="generarPartidos()">Armar Partidos</button>
-        <h2>Partidos</h2>
+        <h2>🏆 Partidos por Ronda</h2>
         <ul id="partidos-americana"></ul>
     </div>
 

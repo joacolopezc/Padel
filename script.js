@@ -199,15 +199,16 @@ class GestorJugadores {
 
 
 // ====================================================================
-// GESTOR DE PARTIDOS
+// GESTOR DE PARTIDOS - ALGORITMO ROUND-ROBIN
 // ====================================================================
-// Maneja la generación de parejas y partidos para la americana
+// Implementa el algoritmo Round-Robin para americana de pádel
+// Garantiza que todos los jugadores jueguen entre sí de manera equitativa
 
 class GestorPartidos {
     constructor() {
         this.jugadoresSeleccionados = [];
-        this.parejas = [];
-        this.partidos = [];
+        this.rondas = []; // Array de rondas, cada ronda tiene 2 partidos simultáneos
+        this.todasLasParejas = []; // Registro de todas las parejas generadas
     }
 
     // Selecciona los 8 jugadores que jugarán
@@ -223,93 +224,198 @@ class GestorPartidos {
         return true;
     }
 
-    // Genera las parejas entre los 8 jugadores seleccionados
-    // Algoritmo: divide los jugadores en dos grupos y hace todas las combinaciones posibles
-    generarParejas() {
+    // ====================================================================
+    // ALGORITMO ROUND-ROBIN PARA AMERICANA
+    // ====================================================================
+    // Este algoritmo garantiza que:
+    // 1. Cada jugador juega exactamente 7 partidos (todos contra todos)
+    // 2. Cada jugador tiene 7 compañeros diferentes a lo largo del torneo
+    // 3. Cada jugador enfrenta a todos los demás jugadores
+    // 4. En cada ronda, todos los 8 jugadores juegan simultáneamente (2 partidos de 4)
+
+    generarAmericanaCompleta() {
         if (this.jugadoresSeleccionados.length !== 8) {
             throw new Error('Necesitas seleccionar 8 jugadores primero');
         }
 
-        this.parejas = [];
+        // Resetear datos previos
+        this.rondas = [];
+        this.todasLasParejas = [];
 
-        // Divide en dos grupos de 4
-        const grupo1 = this.jugadoresSeleccionados.slice(0, 4);
-        const grupo2 = this.jugadoresSeleccionados.slice(4, 8);
+        // Para 8 jugadores, se generan 7 rondas
+        // En cada ronda, hay 2 partidos simultáneos (4v4)
+        const jugadores = [...this.jugadoresSeleccionados];
 
-        // Genera todas las parejas posibles entre grupo1 y grupo2
-        // Esto genera 16 parejas (4 x 4)
-        grupo1.forEach(jugador1 => {
-            grupo2.forEach(jugador2 => {
-                this.parejas.push([jugador1, jugador2]);
+        // Algoritmo Round-Robin modificado para americana
+        // Fijamos el primer jugador y rotamos los demás 7
+        const fijo = jugadores[0];
+        const rotables = jugadores.slice(1);
+
+        for (let ronda = 0; ronda < 7; ronda++) {
+            // Crear array temporal para esta ronda
+            const jugadoresRonda = [fijo, ...rotables];
+
+            // Generar los 2 partidos de esta ronda
+            const partidosRonda = this._generarPartidosRonda(jugadoresRonda, ronda + 1);
+
+            this.rondas.push({
+                numero: ronda + 1,
+                partidos: partidosRonda
+            });
+
+            // Rotar los jugadores rotables para la siguiente ronda
+            // El último pasa al principio
+            rotables.unshift(rotables.pop());
+        }
+
+        return this.rondas;
+    }
+
+    // Genera los 2 partidos de una ronda específica
+    // Usa un patrón fijo para asegurar que todos jueguen contra todos
+    _generarPartidosRonda(jugadores, numeroRonda) {
+        // Patrones de emparejamiento para cada ronda
+        // Cada patrón define: [pareja1_jugador1, pareja1_jugador2, pareja2_jugador1, pareja2_jugador2]
+        const patrones = [
+            // Ronda 1: (0,1 vs 2,3) y (4,5 vs 6,7)
+            [[0, 1, 2, 3], [4, 5, 6, 7]],
+            // Ronda 2: (0,2 vs 1,4) y (3,6 vs 5,7)
+            [[0, 2, 1, 4], [3, 6, 5, 7]],
+            // Ronda 3: (0,3 vs 5,6) y (1,7 vs 2,4)
+            [[0, 3, 5, 6], [1, 7, 2, 4]],
+            // Ronda 4: (0,4 vs 3,7) y (1,5 vs 2,6)
+            [[0, 4, 3, 7], [1, 5, 2, 6]],
+            // Ronda 5: (0,5 vs 1,6) y (2,7 vs 3,4)
+            [[0, 5, 1, 6], [2, 7, 3, 4]],
+            // Ronda 6: (0,6 vs 2,5) y (1,3 vs 4,7)
+            [[0, 6, 2, 5], [1, 3, 4, 7]],
+            // Ronda 7: (0,7 vs 4,6) y (1,2 vs 3,5)
+            [[0, 7, 4, 6], [1, 2, 3, 5]]
+        ];
+
+        const patron = patrones[numeroRonda - 1];
+        const partidos = [];
+
+        patron.forEach((indices, indexPartido) => {
+            const pareja1 = [jugadores[indices[0]], jugadores[indices[1]]];
+            const pareja2 = [jugadores[indices[2]], jugadores[indices[3]]];
+
+            // Registrar las parejas
+            this.todasLasParejas.push(pareja1);
+            this.todasLasParejas.push(pareja2);
+
+            partidos.push({
+                numeroPartido: indexPartido + 1,
+                pareja1: pareja1,
+                pareja2: pareja2,
+                resultado: null, // null = no jugado aún
+                jugado: false
             });
         });
 
-        return this.parejas;
+        return partidos;
     }
 
-    // Genera los partidos de la americana
-    // Cada pareja debe jugar una vez y cada jugador no puede jugar contra sí mismo
-    generarPartidos() {
-        if (this.parejas.length === 0) {
-            throw new Error('Necesitas generar parejas primero');
-        }
+    // Obtiene todas las parejas únicas que se han formado
+    obtenerParejasUnicas() {
+        const parejasSet = new Set();
+        const parejasUnicas = [];
 
-        this.partidos = [];
-        const parejasUsadas = new Set();
-
-        // Intenta generar 8 partidos (todas las parejas juegan una vez)
-        let intentos = 0;
-        const maxIntentos = 1000; // Previene loops infinitos
-
-        while (this.partidos.length < 8 && intentos < maxIntentos) {
-            intentos++;
-
-            // Selecciona dos parejas al azar
-            const index1 = Math.floor(Math.random() * this.parejas.length);
-            const index2 = Math.floor(Math.random() * this.parejas.length);
-
-            if (index1 === index2) continue;
-
-            const pareja1 = this.parejas[index1];
-            const pareja2 = this.parejas[index2];
-
-            // Verifica que las parejas no se hayan usado
-            const key1 = pareja1.join('|');
-            const key2 = pareja2.join('|');
-
-            if (parejasUsadas.has(key1) || parejasUsadas.has(key2)) {
-                continue;
+        this.todasLasParejas.forEach(pareja => {
+            const key = [...pareja].sort().join('|');
+            if (!parejasSet.has(key)) {
+                parejasSet.add(key);
+                parejasUnicas.push(pareja);
             }
+        });
 
-            // Verifica que no haya jugadores repetidos
-            const todosJugadores = [...pareja1, ...pareja2];
-            const jugadoresUnicos = new Set(todosJugadores);
+        return parejasUnicas;
+    }
 
-            if (jugadoresUnicos.size === 4) {
-                // Partido válido!
-                this.partidos.push({
-                    pareja1: pareja1,
-                    pareja2: pareja2,
-                    resultado: null // null = no jugado aún
+    // Obtiene todos los partidos en formato plano (sin agrupar por rondas)
+    obtenerTodosLosPartidos() {
+        const partidos = [];
+        this.rondas.forEach(ronda => {
+            ronda.partidos.forEach(partido => {
+                partidos.push({
+                    ...partido,
+                    ronda: ronda.numero
                 });
+            });
+        });
+        return partidos;
+    }
 
-                parejasUsadas.add(key1);
-                parejasUsadas.add(key2);
+    // Obtiene estadísticas de un jugador en el torneo
+    obtenerEstadisticasJugador(nombreJugador) {
+        const partidos = this.obtenerTodosLosPartidos();
+        const partidosDelJugador = partidos.filter(partido =>
+            partido.pareja1.includes(nombreJugador) ||
+            partido.pareja2.includes(nombreJugador)
+        );
+
+        const compañeros = new Set();
+        const rivales = new Set();
+
+        partidosDelJugador.forEach(partido => {
+            const enPareja1 = partido.pareja1.includes(nombreJugador);
+            const pareja = enPareja1 ? partido.pareja1 : partido.pareja2;
+            const rivalesPartido = enPareja1 ? partido.pareja2 : partido.pareja1;
+
+            // Agregar compañero
+            const compañero = pareja.find(j => j !== nombreJugador);
+            if (compañero) compañeros.add(compañero);
+
+            // Agregar rivales
+            rivalesPartido.forEach(rival => rivales.add(rival));
+        });
+
+        return {
+            jugador: nombreJugador,
+            partidosTotal: partidosDelJugador.length,
+            compañerosDiferentes: compañeros.size,
+            rivalesDiferentes: rivales.size,
+            compañeros: Array.from(compañeros),
+            rivales: Array.from(rivales)
+        };
+    }
+
+    // Verifica que el torneo esté correctamente generado
+    verificarIntegridadTorneo() {
+        const errores = [];
+        const warnings = [];
+
+        // Verificar que hay 7 rondas
+        if (this.rondas.length !== 7) {
+            errores.push(`Deberían ser 7 rondas, pero hay ${this.rondas.length}`);
+        }
+
+        // Verificar que cada jugador juega 7 partidos
+        this.jugadoresSeleccionados.forEach(jugador => {
+            const stats = this.obtenerEstadisticasJugador(jugador);
+            if (stats.partidosTotal !== 7) {
+                errores.push(`${jugador} debería jugar 7 partidos, pero juega ${stats.partidosTotal}`);
             }
-        }
+            if (stats.compañerosDiferentes !== 7) {
+                warnings.push(`${jugador} debería tener 7 compañeros diferentes, pero tiene ${stats.compañerosDiferentes}`);
+            }
+            if (stats.rivalesDiferentes !== 7) {
+                warnings.push(`${jugador} debería enfrentar a 7 rivales diferentes, pero enfrenta a ${stats.rivalesDiferentes}`);
+            }
+        });
 
-        if (this.partidos.length < 8) {
-            console.warn('No se pudieron generar todos los partidos. Se generaron:', this.partidos.length);
-        }
-
-        return this.partidos;
+        return {
+            esValido: errores.length === 0,
+            errores: errores,
+            warnings: warnings
+        };
     }
 
     // Limpia toda la información de partidos
     limpiar() {
         this.jugadoresSeleccionados = [];
-        this.parejas = [];
-        this.partidos = [];
+        this.rondas = [];
+        this.todasLasParejas = [];
     }
 }
 
@@ -383,11 +489,21 @@ class InterfazUsuario {
         return jugadores;
     }
 
-    // Muestra las parejas generadas
-    mostrarParejas(parejas) {
+    // Muestra las parejas únicas generadas en el torneo
+    mostrarParejasUnicas(parejas) {
         const listaParejas = document.getElementById('parejas-generadas');
         listaParejas.innerHTML = '';
 
+        // Mensaje informativo
+        const mensaje = document.createElement('div');
+        mensaje.classList.add('info-parejas');
+        mensaje.innerHTML = `
+            <p>Se generaron <strong>${parejas.length} parejas únicas</strong> para el torneo.</p>
+            <p>Cada jugador jugará con <strong>7 compañeros diferentes</strong>.</p>
+        `;
+        listaParejas.appendChild(mensaje);
+
+        // Mostrar todas las parejas
         parejas.forEach((pareja, index) => {
             const li = document.createElement('li');
             li.classList.add('pareja-item');
@@ -399,31 +515,73 @@ class InterfazUsuario {
         });
     }
 
-    // Muestra los partidos generados
-    mostrarPartidos(partidos) {
+    // Muestra los partidos organizados por rondas
+    mostrarPartidosPorRondas(rondas) {
         const listaPartidos = document.getElementById('partidos-americana');
         listaPartidos.innerHTML = '';
 
-        partidos.forEach((partido, index) => {
-            const li = document.createElement('li');
-            li.classList.add('partido-item');
+        // Mensaje informativo del torneo
+        const infoTorneo = document.createElement('div');
+        infoTorneo.classList.add('info-torneo');
+        infoTorneo.innerHTML = `
+            <p><strong>🎾 Torneo Americana - ${rondas.length} Rondas</strong></p>
+            <p>Cada jugador jugará ${rondas.length} partidos. En cada ronda, todos juegan simultáneamente.</p>
+        `;
+        listaPartidos.appendChild(infoTorneo);
 
-            const pareja1Texto = partido.pareja1.join(' - ');
-            const pareja2Texto = partido.pareja2.join(' - ');
+        // Mostrar cada ronda con sus partidos
+        rondas.forEach((ronda) => {
+            const rondaDiv = document.createElement('div');
+            rondaDiv.classList.add('ronda-container');
 
-            li.innerHTML = `
-                <div class="partido-header">
-                    <span class="partido-numero">Partido ${index + 1}</span>
-                </div>
-                <div class="partido-detalle">
-                    <span class="pareja">${pareja1Texto}</span>
-                    <span class="vs">VS</span>
-                    <span class="pareja">${pareja2Texto}</span>
-                </div>
+            // Encabezado de la ronda
+            const headerRonda = document.createElement('div');
+            headerRonda.classList.add('ronda-header');
+            headerRonda.innerHTML = `
+                <h3>Ronda ${ronda.numero}</h3>
+                <span class="ronda-badge">${ronda.partidos.length} partidos simultáneos</span>
             `;
+            rondaDiv.appendChild(headerRonda);
 
-            listaPartidos.appendChild(li);
+            // Partidos de la ronda
+            const partidosDiv = document.createElement('div');
+            partidosDiv.classList.add('ronda-partidos');
+
+            ronda.partidos.forEach((partido, indexPartido) => {
+                const partidoDiv = document.createElement('div');
+                partidoDiv.classList.add('partido-item');
+
+                const pareja1Texto = partido.pareja1.join(' - ');
+                const pareja2Texto = partido.pareja2.join(' - ');
+
+                partidoDiv.innerHTML = `
+                    <div class="partido-header">
+                        <span class="partido-numero">Pista ${indexPartido + 1}</span>
+                    </div>
+                    <div class="partido-detalle">
+                        <span class="pareja">${pareja1Texto}</span>
+                        <span class="vs">VS</span>
+                        <span class="pareja">${pareja2Texto}</span>
+                    </div>
+                `;
+
+                partidosDiv.appendChild(partidoDiv);
+            });
+
+            rondaDiv.appendChild(partidosDiv);
+            listaPartidos.appendChild(rondaDiv);
         });
+    }
+
+    // Muestra estadísticas de un jugador específico
+    mostrarEstadisticasJugador(nombreJugador, stats) {
+        const mensaje = `
+            <strong>${nombreJugador}</strong>:
+            ${stats.partidosTotal} partidos,
+            ${stats.compañerosDiferentes} compañeros diferentes,
+            ${stats.rivalesDiferentes} rivales diferentes
+        `;
+        this.mostrarMensaje(mensaje, 'info');
     }
 
     // Muestra un mensaje al usuario
@@ -468,6 +626,7 @@ window.onload = function() {
 };
 
 // Función llamada cuando se hace clic en "Sortear Parejas"
+// Ahora genera directamente todo el torneo con el algoritmo Round-Robin
 function seleccionarJugadores() {
     try {
         const jugadores = interfazUsuario.obtenerJugadoresSeleccionados();
@@ -475,26 +634,56 @@ function seleccionarJugadores() {
         // Valida y selecciona jugadores
         gestorPartidos.seleccionarJugadores(jugadores);
 
-        // Genera las parejas
-        const parejas = gestorPartidos.generarParejas();
+        // Genera el torneo completo con el algoritmo Round-Robin
+        const rondas = gestorPartidos.generarAmericanaCompleta();
 
-        // Muestra las parejas
-        interfazUsuario.mostrarParejas(parejas);
+        // Obtiene todas las parejas únicas del torneo
+        const parejasUnicas = gestorPartidos.obtenerParejasUnicas();
 
-        interfazUsuario.mostrarMensaje('✅ Parejas generadas correctamente', 'success');
+        // Muestra las parejas únicas
+        interfazUsuario.mostrarParejasUnicas(parejasUnicas);
+
+        // Muestra los partidos organizados por rondas
+        interfazUsuario.mostrarPartidosPorRondas(rondas);
+
+        // Verifica la integridad del torneo
+        const verificacion = gestorPartidos.verificarIntegridadTorneo();
+
+        if (verificacion.esValido) {
+            interfazUsuario.mostrarMensaje(
+                `✅ Torneo generado correctamente: ${rondas.length} rondas, ${parejasUnicas.length} parejas únicas`,
+                'success'
+            );
+
+            // Log de estadísticas en consola para debugging
+            console.log('📊 Estadísticas del Torneo:');
+            jugadores.forEach(jugador => {
+                const stats = gestorPartidos.obtenerEstadisticasJugador(jugador);
+                console.log(`  ${jugador}: ${stats.partidosTotal} partidos, ${stats.compañerosDiferentes} compañeros, ${stats.rivalesDiferentes} rivales`);
+            });
+        } else {
+            console.error('Errores en el torneo:', verificacion.errores);
+            interfazUsuario.mostrarMensaje('⚠️ El torneo se generó pero hay inconsistencias', 'error');
+        }
 
     } catch (error) {
         interfazUsuario.mostrarMensaje('❌ ' + error.message, 'error');
+        console.error('Error al generar torneo:', error);
     }
 }
 
 // Función llamada cuando se hace clic en "Armar Partidos"
+// Esta función ahora está integrada en seleccionarJugadores()
+// La mantenemos para compatibilidad pero ya no es necesaria
 function generarPartidos() {
     try {
-        const partidos = gestorPartidos.generarPartidos();
-        interfazUsuario.mostrarPartidos(partidos);
-
-        interfazUsuario.mostrarMensaje(`✅ Se generaron ${partidos.length} partidos`, 'success');
+        // Si ya hay rondas generadas, solo las muestra
+        if (gestorPartidos.rondas.length > 0) {
+            interfazUsuario.mostrarPartidosPorRondas(gestorPartidos.rondas);
+            interfazUsuario.mostrarMensaje('✅ Mostrando partidos del torneo', 'info');
+        } else {
+            interfazUsuario.mostrarMensaje('⚠️ Primero debes seleccionar jugadores y generar parejas', 'error');
+        }
 
     } catch (error) {
         interfazUsuario.mostrarMensaje('❌ ' + error.message, 'error');
