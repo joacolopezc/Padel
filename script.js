@@ -556,14 +556,155 @@ class GestorPartidos {
 
 
 // ====================================================================
+// GESTOR DE HISTORIAL DE TORNEOS
+// ====================================================================
+// Maneja el historial de múltiples torneos completados
+// Permite guardar, cargar, eliminar y consultar torneos pasados
+
+class GestorHistorial {
+    constructor() {
+        this.claveTorneos = 'historial_torneos';
+    }
+
+    // Guarda el torneo actual en el historial con metadatos
+    guardarTorneoEnHistorial(gestorPartidos, gestorJugadores) {
+        const estadoTorneo = gestorPartidos.obtenerEstadoTorneo();
+
+        // Obtener el ganador (jugador con más puntos)
+        const jugadoresOrdenados = [...gestorJugadores.jugadores].sort((a, b) => {
+            if (b.puntos !== a.puntos) return b.puntos - a.puntos;
+            return b.diferenciaPuntos - a.diferenciaPuntos;
+        });
+
+        const ganador = jugadoresOrdenados.length > 0 ? jugadoresOrdenados[0] : null;
+
+        // Crear objeto del torneo
+        const torneo = {
+            id: Date.now(), // Timestamp único
+            fecha: new Date().toISOString(),
+            fechaLegible: new Date().toLocaleString('es-ES', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            }),
+            jugadoresSeleccionados: gestorPartidos.jugadoresSeleccionados,
+            rondas: gestorPartidos.rondas,
+            todasLasParejas: gestorPartidos.todasLasParejas,
+            estadisticasJugadores: gestorJugadores.jugadores.map(j => j.toJSON()),
+            estado: estadoTorneo,
+            completo: estadoTorneo.torneoCompleto,
+            ganador: ganador ? {
+                nombre: ganador.nombre,
+                puntos: ganador.puntos,
+                puntosAFavor: ganador.puntosAFavor,
+                puntosEnContra: ganador.puntosEnContra,
+                diferenciaPuntos: ganador.diferenciaPuntos
+            } : null
+        };
+
+        // Obtener historial existente
+        const historial = this.obtenerHistorial();
+
+        // Agregar nuevo torneo al inicio
+        historial.unshift(torneo);
+
+        // Limitar a máximo 50 torneos guardados
+        if (historial.length > 50) {
+            historial.splice(50);
+        }
+
+        // Guardar historial actualizado
+        Almacenamiento.guardar(this.claveTorneos, historial);
+
+        return torneo;
+    }
+
+    // Obtiene todo el historial de torneos
+    obtenerHistorial() {
+        return Almacenamiento.obtener(this.claveTorneos) || [];
+    }
+
+    // Obtiene un torneo específico por ID
+    obtenerTorneoPorId(id) {
+        const historial = this.obtenerHistorial();
+        return historial.find(t => t.id === id);
+    }
+
+    // Elimina un torneo del historial
+    eliminarTorneo(id) {
+        const historial = this.obtenerHistorial();
+        const nuevoHistorial = historial.filter(t => t.id !== id);
+        Almacenamiento.guardar(this.claveTorneos, nuevoHistorial);
+        return true;
+    }
+
+    // Carga un torneo del historial al gestor actual
+    cargarTorneoDelHistorial(id, gestorPartidos) {
+        const torneo = this.obtenerTorneoPorId(id);
+        if (!torneo) {
+            throw new Error('Torneo no encontrado');
+        }
+
+        gestorPartidos.jugadoresSeleccionados = torneo.jugadoresSeleccionados;
+        gestorPartidos.rondas = torneo.rondas;
+        gestorPartidos.todasLasParejas = torneo.todasLasParejas;
+        gestorPartidos.guardar(); // Guardar como torneo actual
+
+        return torneo;
+    }
+
+    // Obtiene estadísticas generales del historial
+    obtenerEstadisticasGenerales() {
+        const historial = this.obtenerHistorial();
+
+        if (historial.length === 0) {
+            return null;
+        }
+
+        // Contar victorias por jugador
+        const victoriasJugador = {};
+        const participacionesJugador = {};
+
+        historial.forEach(torneo => {
+            if (torneo.ganador) {
+                victoriasJugador[torneo.ganador.nombre] = (victoriasJugador[torneo.ganador.nombre] || 0) + 1;
+            }
+
+            torneo.jugadoresSeleccionados.forEach(jugador => {
+                participacionesJugador[jugador] = (participacionesJugador[jugador] || 0) + 1;
+            });
+        });
+
+        return {
+            totalTorneos: historial.length,
+            torneosCompletos: historial.filter(t => t.completo).length,
+            torneosIncompletos: historial.filter(t => !t.completo).length,
+            victoriasJugador,
+            participacionesJugador,
+            jugadorMasGanador: Object.entries(victoriasJugador).sort((a, b) => b[1] - a[1])[0],
+            jugadorMasParticipaciones: Object.entries(participacionesJugador).sort((a, b) => b[1] - a[1])[0]
+        };
+    }
+
+    // Limpia todo el historial
+    limpiarHistorial() {
+        Almacenamiento.eliminar(this.claveTorneos);
+    }
+}
+
+
+// ====================================================================
 // INTERFAZ DE USUARIO (UI)
 // ====================================================================
 // Estas funciones manejan la actualización del HTML y la interacción con el usuario
 
 class InterfazUsuario {
-    constructor(gestorJugadores, gestorPartidos) {
+    constructor(gestorJugadores, gestorPartidos, gestorHistorial) {
         this.gestorJugadores = gestorJugadores;
         this.gestorPartidos = gestorPartidos;
+        this.gestorHistorial = gestorHistorial;
     }
 
     // Renderiza la tabla de posiciones
@@ -998,6 +1139,165 @@ class InterfazUsuario {
             this.mostrarMensaje('❌ ' + error.message, 'error');
         }
     }
+
+    // ====================================================================
+    // GESTIÓN DEL HISTORIAL DE TORNEOS
+    // ====================================================================
+
+    // Guarda el torneo actual en el historial
+    guardarTorneoActualEnHistorial() {
+        try {
+            const estadoTorneo = this.gestorPartidos.obtenerEstadoTorneo();
+
+            if (this.gestorPartidos.rondas.length === 0) {
+                throw new Error('No hay ningún torneo para guardar');
+            }
+
+            // Guardar en historial
+            const torneo = this.gestorHistorial.guardarTorneoEnHistorial(
+                this.gestorPartidos,
+                this.gestorJugadores
+            );
+
+            // Actualizar vista del historial
+            this.renderizarHistorialTorneos();
+
+            const mensaje = torneo.completo
+                ? `✅ Torneo guardado en el historial. Ganador: ${torneo.ganador.nombre}`
+                : '✅ Torneo guardado en el historial (incompleto)';
+
+            this.mostrarMensaje(mensaje, 'success');
+
+        } catch (error) {
+            this.mostrarMensaje('❌ ' + error.message, 'error');
+        }
+    }
+
+    // Renderiza la lista del historial de torneos
+    renderizarHistorialTorneos() {
+        const container = document.getElementById('lista-historial-torneos');
+        if (!container) return;
+
+        container.innerHTML = '';
+
+        const historial = this.gestorHistorial.obtenerHistorial();
+
+        if (historial.length === 0) {
+            container.innerHTML = '<p class="mensaje-vacio">No hay torneos guardados en el historial</p>';
+            return;
+        }
+
+        historial.forEach((torneo, index) => {
+            const torneoDiv = document.createElement('div');
+            torneoDiv.classList.add('torneo-item');
+            if (torneo.completo) {
+                torneoDiv.classList.add('torneo-completo');
+            }
+
+            const ganadorTexto = torneo.ganador
+                ? `<span class="ganador-badge">🏆 ${torneo.ganador.nombre} (${torneo.ganador.puntos} pts)</span>`
+                : '<span class="badge-pendiente">Sin ganador</span>';
+
+            torneoDiv.innerHTML = `
+                <div class="torneo-info">
+                    <div class="torneo-fecha">${torneo.fechaLegible}</div>
+                    <div class="torneo-detalle">
+                        ${ganadorTexto}
+                        <span class="torneo-stats">
+                            ${torneo.estado.partidosJugados}/${torneo.estado.totalPartidos} partidos
+                            ${torneo.completo ? '<span class="badge-completo">✓ Completo</span>' : '<span class="badge-incompleto">⏳ Incompleto</span>'}
+                        </span>
+                    </div>
+                    <div class="torneo-jugadores">
+                        Jugadores: ${torneo.jugadoresSeleccionados.join(', ')}
+                    </div>
+                </div>
+                <div class="torneo-acciones">
+                    <button onclick="cargarTorneoDelHistorial(${torneo.id})" class="btn-small btn-load" title="Cargar torneo">
+                        📂
+                    </button>
+                    <button onclick="eliminarTorneoDelHistorial(${torneo.id})" class="btn-small btn-delete" title="Eliminar torneo">
+                        🗑️
+                    </button>
+                </div>
+            `;
+
+            container.appendChild(torneoDiv);
+        });
+
+        // Mostrar estadísticas generales
+        const stats = this.gestorHistorial.obtenerEstadisticasGenerales();
+        if (stats) {
+            const statsDiv = document.createElement('div');
+            statsDiv.classList.add('historial-stats');
+            statsDiv.innerHTML = `
+                <h4>📊 Estadísticas Generales</h4>
+                <p><strong>Total de torneos:</strong> ${stats.totalTorneos} (${stats.torneosCompletos} completos)</p>
+                ${stats.jugadorMasGanador ? `<p><strong>Jugador más ganador:</strong> ${stats.jugadorMasGanador[0]} (${stats.jugadorMasGanador[1]} victorias)</p>` : ''}
+                ${stats.jugadorMasParticipaciones ? `<p><strong>Más participaciones:</strong> ${stats.jugadorMasParticipaciones[0]} (${stats.jugadorMasParticipaciones[1]} torneos)</p>` : ''}
+            `;
+            container.appendChild(statsDiv);
+        }
+    }
+
+    // Carga un torneo del historial
+    cargarTorneoDelHistorialPorId(id) {
+        try {
+            const torneo = this.gestorHistorial.cargarTorneoDelHistorial(id, this.gestorPartidos);
+
+            // Mostrar torneo cargado
+            const parejasUnicas = this.gestorPartidos.obtenerParejasUnicas();
+            this.mostrarParejasUnicas(parejasUnicas);
+            this.mostrarPartidosPorRondas(this.gestorPartidos.rondas);
+
+            // Actualizar tabla de posiciones si hay jugadores con las mismas estadísticas
+            // Necesitamos cargar las estadísticas guardadas
+            torneo.estadisticasJugadores.forEach(jugadorData => {
+                const jugador = this.gestorJugadores.obtenerJugadorPorNombre(jugadorData.nombre);
+                if (jugador) {
+                    jugador.puntos = jugadorData.puntos;
+                    jugador.puntosAFavor = jugadorData.puntosAFavor;
+                    jugador.puntosEnContra = jugadorData.puntosEnContra;
+                }
+            });
+            this.gestorJugadores.guardar();
+            this.renderizarTablaPosiciones();
+
+            this.mostrarMensaje(`📂 Torneo cargado: ${torneo.fechaLegible}`, 'success');
+
+        } catch (error) {
+            this.mostrarMensaje('❌ ' + error.message, 'error');
+        }
+    }
+
+    // Elimina un torneo del historial
+    eliminarTorneoDelHistorialPorId(id) {
+        if (!confirm('¿Estás seguro de que deseas eliminar este torneo del historial?\n\nEsta acción no se puede deshacer.')) {
+            return;
+        }
+
+        try {
+            this.gestorHistorial.eliminarTorneo(id);
+            this.renderizarHistorialTorneos();
+            this.mostrarMensaje('✅ Torneo eliminado del historial', 'success');
+
+        } catch (error) {
+            this.mostrarMensaje('❌ ' + error.message, 'error');
+        }
+    }
+
+    // Muestra/oculta la sección del historial
+    toggleHistorial() {
+        const panel = document.getElementById('panel-historial-torneos');
+        if (!panel) return;
+
+        const isVisible = panel.style.display !== 'none';
+        panel.style.display = isVisible ? 'none' : 'block';
+
+        if (!isVisible) {
+            this.renderizarHistorialTorneos();
+        }
+    }
 }
 
 
@@ -1009,6 +1309,7 @@ class InterfazUsuario {
 // Variables globales (instancias únicas)
 let gestorJugadores;
 let gestorPartidos;
+let gestorHistorial;
 let interfazUsuario;
 
 // Función que se ejecuta al cargar la página
@@ -1016,7 +1317,8 @@ window.onload = function() {
     // Inicializa los gestores
     gestorJugadores = new GestorJugadores();
     gestorPartidos = new GestorPartidos();
-    interfazUsuario = new InterfazUsuario(gestorJugadores, gestorPartidos);
+    gestorHistorial = new GestorHistorial();
+    interfazUsuario = new InterfazUsuario(gestorJugadores, gestorPartidos, gestorHistorial);
 
     // Renderiza la interfaz inicial
     interfazUsuario.renderizarTablaPosiciones();
@@ -1148,4 +1450,28 @@ function resetearEstadisticasJugador(nombre) {
 // Resetea las estadísticas de todos los jugadores
 function resetearTodasEstadisticas() {
     interfazUsuario.resetearTodasLasEstadisticas();
+}
+
+// ====================================================================
+// FUNCIONES GLOBALES PARA HISTORIAL DE TORNEOS
+// ====================================================================
+
+// Guarda el torneo actual en el historial
+function guardarTorneoEnHistorial() {
+    interfazUsuario.guardarTorneoActualEnHistorial();
+}
+
+// Muestra/oculta el panel del historial
+function toggleHistorial() {
+    interfazUsuario.toggleHistorial();
+}
+
+// Carga un torneo del historial
+function cargarTorneoDelHistorial(id) {
+    interfazUsuario.cargarTorneoDelHistorialPorId(id);
+}
+
+// Elimina un torneo del historial
+function eliminarTorneoDelHistorial(id) {
+    interfazUsuario.eliminarTorneoDelHistorialPorId(id);
 }

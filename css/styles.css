@@ -950,3 +950,234 @@ body footer {
     padding: 12px;
   }
 }
+
+/* ============================================= */
+/* ESTILOS PARA HISTORIAL DE TORNEOS */
+/* ============================================= */
+
+.historial-torneos {
+  background-color: rgba(255, 255, 255, 0.9);
+  padding: 30px;
+  border-radius: 15px;
+  margin: 30px auto;
+  max-width: 900px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.historial-torneos h2 {
+  font-size: 28px;
+  margin-bottom: 25px;
+  color: black;
+  font-weight: 800;
+}
+
+/* Botones de acciones del historial */
+.historial-botones {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 15px;
+}
+
+.btn-save,
+.btn-toggle {
+  flex: 1;
+  min-width: 200px;
+  padding: 12px 24px;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-family: "Montserrat", sans-serif;
+}
+
+.btn-save {
+  background-color: #4CAF50;
+  color: white;
+}
+
+.btn-save:hover {
+  background-color: #45a049;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(76, 175, 80, 0.4);
+}
+
+.btn-toggle {
+  background-color: #2196F3;
+  color: white;
+}
+
+.btn-toggle:hover {
+  background-color: #1976D2;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(33, 150, 243, 0.4);
+}
+
+/* Lista de torneos guardados */
+#lista-historial-torneos {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.torneo-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 1) 0%, rgba(245, 245, 245, 1) 100%);
+  border-radius: 10px;
+  border: 2px solid rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.torneo-item:hover {
+  transform: translateX(5px);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
+  border-color: rgba(199, 217, 4, 0.956);
+}
+
+.torneo-item.torneo-completo {
+  border-left: 5px solid #4CAF50;
+}
+
+.torneo-info {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+}
+
+.torneo-fecha {
+  font-size: 14px;
+  color: #666;
+  font-weight: 600;
+}
+
+.torneo-detalle {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  flex-wrap: wrap;
+}
+
+.ganador-badge {
+  background-color: rgba(199, 217, 4, 0.956);
+  color: black;
+  padding: 5px 12px;
+  border-radius: 15px;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.torneo-stats {
+  font-size: 13px;
+  color: #666;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.badge-completo {
+  background-color: #4CAF50;
+  color: white;
+  padding: 3px 10px;
+  border-radius: 10px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.badge-incompleto {
+  background-color: #ff9800;
+  color: white;
+  padding: 3px 10px;
+  border-radius: 10px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.torneo-jugadores {
+  font-size: 13px;
+  color: #888;
+  max-width: 600px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.torneo-acciones {
+  display: flex;
+  gap: 8px;
+}
+
+.btn-load {
+  background-color: #2196F3;
+}
+
+.btn-load:hover {
+  background-color: #1976D2;
+}
+
+/* Estadísticas generales del historial */
+.historial-stats {
+  margin-top: 25px;
+  padding: 20px;
+  background: linear-gradient(135deg, rgba(199, 217, 4, 0.2) 0%, rgba(199, 217, 4, 0.1) 100%);
+  border-radius: 10px;
+  border-left: 4px solid rgba(199, 217, 4, 0.956);
+}
+
+.historial-stats h4 {
+  margin: 0 0 15px 0;
+  font-size: 18px;
+  color: black;
+  font-weight: 700;
+}
+
+.historial-stats p {
+  margin: 8px 0;
+  font-size: 14px;
+  color: #333;
+}
+
+/* Responsive para historial */
+@media (max-width: 768px) {
+  .historial-torneos {
+    padding: 20px 15px;
+  }
+
+  .historial-botones {
+    flex-direction: column;
+  }
+
+  .btn-save,
+  .btn-toggle {
+    width: 100%;
+    min-width: unset;
+  }
+
+  .torneo-item {
+    flex-direction: column;
+    gap: 15px;
+    align-items: stretch;
+  }
+
+  .torneo-detalle {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .torneo-acciones {
+    justify-content: space-around;
+    width: 100%;
+  }
+
+  .torneo-jugadores {
+    white-space: normal;
+  }
+}

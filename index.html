@@ -65,6 +65,30 @@
             </div>
         </div>
 
+        <div data-aos="fade-up" data-aos-duration="3000" class="historial-torneos">
+            <h2>📚 Historial de Torneos</h2>
+
+            <!-- Botones de acción -->
+            <div class="panel-gestion">
+                <h3>💾 Acciones</h3>
+                <div class="historial-botones">
+                    <button type="button" onclick="guardarTorneoEnHistorial()" class="btn-save">
+                        💾 Guardar Torneo Actual
+                    </button>
+                    <button type="button" onclick="toggleHistorial()" class="btn-toggle">
+                        📖 Ver Historial
+                    </button>
+                </div>
+                <p class="descripcion-panel">Guarda el torneo actual en el historial o consulta torneos anteriores.</p>
+            </div>
+
+            <!-- Panel del historial (oculto por defecto) -->
+            <div id="panel-historial-torneos" class="panel-gestion" style="display: none;">
+                <h3>📋 Torneos Guardados</h3>
+                <div id="lista-historial-torneos"></div>
+            </div>
+        </div>
+
         <h2>Seleccionar 8 Jugadores para la Americana</h2>
         <p class="descripcion-sorteo">Selecciona 8 jugadores para generar el torneo completo con el sistema Round-Robin. Se crearán 7 rondas con 2 partidos simultáneos en cada una.</p>
         <form id="formulario-jugadores">
